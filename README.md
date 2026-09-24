@@ -48,6 +48,10 @@ publication de data. La clé worker n'est jamais envoyée au navigateur.
 SFU depuis son réseau Docker ; le jeton reste toujours émis par l'API pour le
 robot concerné.
 
+`OSCAR_EXCLUSION_ZONES_BY_ROBOT` accepte un objet JSON associant un identifiant
+robot à ses zones d'exclusion. Il prime sur `OSCAR_EXCLUSION_ZONES`, conservée
+comme valeur de repli pour les installations homogènes.
+
 ## Formats
 
 Le registre accepte `.pt`, `.onnx`, `.engine`, `.torchscript` et `.tflite`.
