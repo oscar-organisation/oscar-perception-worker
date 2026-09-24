@@ -47,6 +47,12 @@ class WorkerSession(BaseModel):
     expires_in_seconds: int
 
 
+class WorkerLeases(BaseModel):
+    worker_id: str
+    robots: list[str] = Field(default_factory=list)
+    renouveler_dans: int = Field(ge=1)
+
+
 class Detection(BaseModel):
     detection_id: str
     label: str

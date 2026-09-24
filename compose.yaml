@@ -1,3 +1,5 @@
+name: oscar-perception
+
 services:
   perception-worker:
     build:
@@ -7,6 +9,8 @@ services:
         TORCH_INDEX_URL: ${OSCAR_TORCH_INDEX_URL:-https://download.pytorch.org/whl/cpu}
     image: oscar/perception-worker:local
     restart: unless-stopped
+    deploy:
+      replicas: 2
     read_only: true
     security_opt:
       - no-new-privileges:true

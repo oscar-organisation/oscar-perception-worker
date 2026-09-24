@@ -84,13 +84,16 @@ class IdentificationAdapter:
         self.galerie = paquet["embeddings"].float()
         self.produits = paquet["products"]
         calibration = paquet.get("calibration") or {}
-        config = manifest.config or {}
-        # La Box peut resserrer ou relacher les reglages calibres sans reconstruire la galerie.
-        self.seuil = float(config.get("match_threshold", calibration.get("seuil", 0.85)))
-        self.marge = float(config.get("match_margin", calibration.get("marge", 0.02)))
-        self.hauteur_min = int(config.get("min_crop_height", calibration.get("hauteur_min", 140)))
+        self._seuil_calibre = float(calibration.get("seuil", 0.85))
+        self._marge_calibree = float(calibration.get("marge", 0.02))
+        self._hauteur_min_calibree = int(calibration.get("hauteur_min", 140))
 
-    def identifier(self, recadrages: list[np.ndarray]) -> list[Identite | None]:
+    def hauteur_min(self, manifest: ModelManifest | None = None) -> int:
+        config = (manifest or self.manifest).config or {}
+        return int(config.get("min_crop_height", self._hauteur_min_calibree))
+
+    def identifier(self, recadrages: list[np.ndarray],
+                   manifest: ModelManifest | None = None) -> list[Identite | None]:
         if not recadrages:
             return []
         from PIL import Image
@@ -101,7 +104,10 @@ class IdentificationAdapter:
             f = self.modele(lot)
             f = f / f.norm(dim=-1, keepdim=True)
             top = (f @ self.galerie.T).topk(2, dim=1)
-        choix = decider(top.values.numpy(), top.indices.numpy(), self.seuil, self.marge)
+        config = (manifest or self.manifest).config or {}
+        seuil = float(config.get("match_threshold", self._seuil_calibre))
+        marge = float(config.get("match_margin", self._marge_calibree))
+        choix = decider(top.values.numpy(), top.indices.numpy(), seuil, marge)
         identites: list[Identite | None] = []
         for ligne, i in enumerate(choix):
             if i is None:
