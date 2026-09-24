@@ -184,7 +184,13 @@ class RobotSession:
         self.config = pool.config
         self.registry = pool.registry
         self.robot_id = robot_id
-        self.zones_exclusion = lire_zones(self.config.exclusion_zones)
+        # Les châssis n'occupent pas tous la même partie de l'image. Une zone
+        # globale reste le repli historique, mais un pool hétérogène doit
+        # pouvoir masquer la pince d'un robot sans rogner les autres flux.
+        zones = self.config.exclusion_zones_by_robot.get(
+            robot_id, self.config.exclusion_zones
+        )
+        self.zones_exclusion = lire_zones(zones)
         self._focus_precedent: dict[str, list] = {}
         self._identites: dict[str, list] = {}
         self._identification_en_cours: set[str] = set()

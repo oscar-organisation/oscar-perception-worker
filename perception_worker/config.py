@@ -1,4 +1,5 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+import json
 import os
 from pathlib import Path
 import socket
@@ -9,6 +10,22 @@ def _required(name: str) -> str:
     if not value:
         raise RuntimeError(f"Variable requise absente: {name}")
     return value
+
+
+def _mapping(name: str) -> dict[str, str]:
+    brut = os.getenv(name, "").strip()
+    if not brut:
+        return {}
+    try:
+        valeur = json.loads(brut)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"Variable JSON invalide: {name}") from exc
+    if not isinstance(valeur, dict) or not all(
+        isinstance(cle, str) and isinstance(zones, str)
+        for cle, zones in valeur.items()
+    ):
+        raise RuntimeError(f"Variable attendue comme objet chaîne vers chaîne: {name}")
+    return valeur
 
 
 @dataclass(frozen=True)
@@ -22,6 +39,7 @@ class WorkerConfig:
     manifest_refresh_seconds: int = 10
     exclusion_zones: str = ""
     exclusion_overlap: float = 0.6
+    exclusion_zones_by_robot: dict[str, str] = field(default_factory=dict)
 
     @classmethod
     def from_env(cls) -> "WorkerConfig":
@@ -35,4 +53,5 @@ class WorkerConfig:
             manifest_refresh_seconds=max(3, int(os.getenv("OSCAR_MANIFEST_REFRESH_SECONDS", "10"))),
             exclusion_zones=os.getenv("OSCAR_EXCLUSION_ZONES", ""),
             exclusion_overlap=min(1.0, max(0.05, float(os.getenv("OSCAR_EXCLUSION_OVERLAP", "0.6")))),
+            exclusion_zones_by_robot=_mapping("OSCAR_EXCLUSION_ZONES_BY_ROBOT"),
         )

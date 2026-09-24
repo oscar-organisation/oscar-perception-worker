@@ -1,4 +1,5 @@
 import asyncio
+from dataclasses import replace
 import threading
 import time
 from pathlib import Path
@@ -178,6 +179,22 @@ def test_une_trame_non_due_nest_pas_convertie(tmp_path):
 
         await session._analyse_stream(Flux())
         await session._release_all_models()
+
+    asyncio.run(scenario())
+
+
+def test_les_zones_dexclusion_sont_propres_au_robot(tmp_path):
+    async def scenario():
+        config = replace(configuration(tmp_path), exclusion_zones_by_robot={
+            "robot-avec-pince": "0,0.72,1,1",
+        })
+        pool = WorkerPool(config, registry=RegistreFactice())
+
+        avec = RobotSession(pool, "robot-avec-pince")
+        sans = RobotSession(pool, "robot-sans-pince")
+        assert len(avec.zones_exclusion) == 1
+        assert avec.zones_exclusion[0].y1 == 0.72
+        assert sans.zones_exclusion == ()
 
     asyncio.run(scenario())
 
