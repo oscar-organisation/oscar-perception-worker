@@ -1,0 +1,7 @@
+# Configuration reelle d'un deploiement : elle porte la cle du worker et les
+# identifiants LiveKit. Le modele a suivre est worker.env.example.
+worker.env
+
+__pycache__/
+*.py[cod]
+.pytest_cache/

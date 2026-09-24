@@ -1,0 +1,10 @@
+.git
+.pytest_cache
+__pycache__
+*.py[cod]
+*.pt
+*.onnx
+*.engine
+*.torchscript
+*.tflite
+worker.env

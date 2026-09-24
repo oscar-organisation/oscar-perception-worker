@@ -1,0 +1,1 @@
+"""OSCAR perception worker."""
