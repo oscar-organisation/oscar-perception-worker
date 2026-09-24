@@ -12,5 +12,6 @@ class ModelAdapter(ABC):
         self.artifact = artifact
 
     @abstractmethod
-    def infer(self, rgb_frame: np.ndarray) -> list[Detection]:
+    def infer(self, rgb_frame: np.ndarray,
+              manifest: ModelManifest | None = None) -> list[Detection]:
         """Return normalized top-left XYWH detections."""

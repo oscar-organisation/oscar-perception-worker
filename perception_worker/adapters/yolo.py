@@ -35,13 +35,15 @@ class UltralyticsAdapter(ModelAdapter):
 
         self.model = YOLO(str(artifact), task="detect")
 
-    def infer(self, rgb_frame: np.ndarray) -> list[Detection]:
-        height, width = resolution_inference(self.manifest)
+    def infer(self, rgb_frame: np.ndarray,
+              manifest: ModelManifest | None = None) -> list[Detection]:
+        actif = manifest or self.manifest
+        height, width = resolution_inference(actif)
         result = self.model.predict(
             source=rgb_frame,
             imgsz=(height, width),
-            conf=self.manifest.confidence,
-            iou=self.manifest.iou_threshold,
+            conf=actif.confidence,
+            iou=actif.iou_threshold,
             verbose=False,
         )[0]
         if result.boxes is None:
